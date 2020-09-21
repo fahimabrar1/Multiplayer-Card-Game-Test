@@ -1,10 +1,13 @@
 ﻿using Facebook.Unity;
 using PlayFab;
 using PlayFab.ClientModels;
+using PlayFab.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using LoginResult = PlayFab.ClientModels.LoginResult;
 
 
@@ -14,7 +17,14 @@ public class PlayfabLogin : MonoBehaviour
     private string userName;
     private string userPassword;
     private string _message;
+    private Animator animator;
+  
+
     public GameObject LoginPanel;
+    public GameObject ConnectionLogPanel;
+    public Text ConnectionLogText;
+
+
 
     public enum MyUser
     {
@@ -25,8 +35,11 @@ public class PlayfabLogin : MonoBehaviour
 
     public void Start()
     {
+      /*  PlayerPrefs.DeleteKey(PlayfabLogin.MyUser.EMAIL.ToString());
+        PlayerPrefs.DeleteKey(PlayfabLogin.MyUser.PASSWORD.ToString());
 
-       
+*/
+        animator = ConnectionLogPanel.GetComponent<Animator>();
         if (PlayerPrefs.HasKey(MyUser.EMAIL.ToString()) && PlayerPrefs.HasKey(MyUser.PASSWORD.ToString()))
         {
             OnClickLogin();
@@ -43,8 +56,12 @@ public class PlayfabLogin : MonoBehaviour
         PlayerPrefs.SetString(MyUser.EMAIL.ToString(), userEmail);
         PlayerPrefs.SetString(MyUser.PASSWORD.ToString(), userPassword);
 
+        animator.SetBool("connect", true);
+        animator.SetBool("stay", false);
+
+
         Debug.Log("Congratulations, you made your first successful API call!");
-        LoginPanel.SetActive(false);
+        ConnectionLogText.text = "Login Sucessful";
         GameManager.PlafabID = result.PlayFabId;
 
 
@@ -52,10 +69,17 @@ public class PlayfabLogin : MonoBehaviour
         getUserName.PlayFabId = GameManager.PlafabID;
         PlayFabClientAPI.GetAccountInfo(getUserName, OnGetAccountInfoSuccess, OnGetAccountInfoFailure);
 
-        var displayName = new UpdateUserTitleDisplayNameRequest();
-        displayName.DisplayName = "Guest";
-        PlayFabClientAPI.UpdateUserTitleDisplayName(displayName, OnSetDisplayNameSuccess, OnSetDisplayNameFailure);
 
+       
+        /*        JsonObject json = new JsonObject();
+                json.Add("name", GameManager.username);
+                GetAccountInfoResult val = null;
+                var displayName = new UpdateUserTitleDisplayNameRequest();
+                json.TryGetValue("name", out val);
+                displayName.DisplayName = val.AccountInfo.Username;
+
+                PlayFabClientAPI.UpdateUserTitleDisplayName(displayName, OnSetDisplayNameSuccess, OnSetDisplayNameFailure);
+        */
     }
 
 
@@ -67,18 +91,35 @@ public class PlayfabLogin : MonoBehaviour
 
     private void OnGetAccountInfoSuccess(GetAccountInfoResult obj)
     {
+/*        lbClient.AuthValues = new AuthenticationValues();
+        lbClient.AuthValues.AuthType = CustomAuthenticationType.Custom;
+        lbClient.AuthValues.AddAuthParameter(obj.AccountInfo.Username, GameManager.PlafabID);
+        lbClient.AuthValues.AddAuthParameter("https://74854.playfabapi.com/Client/GetPhotonAuthenticationToken", PlayFabPhotonToken);
+*/
         Debug.Log("Get AccountInfo Set Success");
         Debug.Log("Username :" +obj.AccountInfo.Username);
-        GameManager.username = obj.AccountInfo.Username.ToString();
+        GameManager.username = obj;
+        StartCoroutine(CloseLogPanel());
+
     }
-      
+
 
     private void OnSetDisplayNameSuccess(UpdateUserTitleDisplayNameResult obj)
     {
+        StartCoroutine(CloseLogPanel());
         Debug.Log("Username Set Success");
-        SceneManager.LoadScene("InGameScene");
     }
 
+    public IEnumerator CloseLogPanel()
+    {
+        LoginPanel.SetActive(false);
+        animator.SetBool("connect", false);
+        animator.SetBool("stay", false);
+        yield return new WaitForSeconds(2f);
+        animator.SetBool("stay", true);
+        SceneManager.LoadScene("InGameScene");
+
+    }
 
     private void OnSetDisplayNameFailure(PlayFabError obj)
     {
@@ -96,9 +137,6 @@ public class PlayfabLogin : MonoBehaviour
     private void OnRegisterSuccess(RegisterPlayFabUserResult result)
     {
 
-        PlayerPrefs.SetString(MyUser.EMAIL.ToString() , userEmail);
-        PlayerPrefs.SetString(MyUser.PASSWORD.ToString() , userPassword);
-       
         Debug.Log("Congratulations, your registration is complete");
         
         GameManager.PlafabID = result.PlayFabId;
