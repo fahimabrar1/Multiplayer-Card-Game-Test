@@ -14,7 +14,7 @@ public class CardInfo : ScriptableObject
         
     }
     public enum Number{
-        A = 1,
+       
         two = 2,
         three = 3,
         four = 4,
@@ -24,10 +24,10 @@ public class CardInfo : ScriptableObject
         eight = 8,
         nine = 9,
         ten = 10,
-        King,
-        Queen,
-        Jack
-
+        Jack = 11,
+        Queen = 12,
+        King = 13,
+        A = 14
         
     }
 

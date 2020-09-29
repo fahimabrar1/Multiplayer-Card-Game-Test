@@ -5,6 +5,7 @@ using Photon;
 using UnityEngine.UI;
 using ExitGames.Client.Photon;
 using UnityEngine.SceneManagement;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class PhotonManager : Photon.MonoBehaviour 
 {
@@ -38,7 +39,6 @@ public class PhotonManager : Photon.MonoBehaviour
 
     public void JoinRoon()
     {
-        PhotonPlayer player;
         
         PhotonNetwork.JoinRandomRoom();
     }
@@ -69,7 +69,8 @@ public class PhotonManager : Photon.MonoBehaviour
         }
         ui.TurnInGameUIOff();
         ui.TurnUIOn();
-        ui.OtherPlayerInActive();
+        ui.OnLeaveGame();
+        GameManager.ResumeMatch = false;
     }
 
 
@@ -78,7 +79,7 @@ public class PhotonManager : Photon.MonoBehaviour
 
         ui.TurnInGameUIOff();
         ui.TurnUIOn();
-        ui.OtherPlayerInActive();
+        ui.OnLeaveGame();
         Debug.Log("Time to Scene Change");
         PlayerPrefs.DeleteKey(PlayfabLogin.MyUser.EMAIL.ToString());
         PlayerPrefs.DeleteKey(PlayfabLogin.MyUser.PASSWORD.ToString());
@@ -89,8 +90,9 @@ public class PhotonManager : Photon.MonoBehaviour
     {
         RoomOptions rm = new RoomOptions
         {
-            maxPlayers = 2,
+            maxPlayers = 5,
             isVisible = true,
+            publishUserId = true,
             EmptyRoomTtl = 2000
             
         };
@@ -102,12 +104,57 @@ public class PhotonManager : Photon.MonoBehaviour
 
     public virtual void OnJoinedRoom()
     {
+        /*  int[] ID = { 100, 200,300 ,400 ,500 };
+          int i = 0;
+          foreach (PhotonPlayer player in PhotonNetwork.playerList)
+          {
+              i
+              i++;
+          }*/
+
+        /*if (!PhotonNetwork.player.customProperties.ContainsValue(ID5))
+        {
+            Debug.Log("Entry Id     :" + ID1);
+            Hashtable hash = new Hashtable();
+            hash.Add(PhotonNetwork.player.ID, ID5);
+            PhotonNetwork.player.SetCustomProperties(hash);
+        }*/
+
+        
         ui.TurnInGameUIOn();
         ui.TurnUIOff();
         Debug.Log("Room Joined");
-        if (PhotonNetwork.room.playerCount == PhotonNetwork.room.MaxPlayers)
+        Debug.Log(PhotonNetwork.player.UserId);
+        if (PhotonNetwork.room.playerCount > 0)
         {
-            ui.OtherPlayerActive();
+           
+            foreach (PhotonPlayer player in PhotonNetwork.playerList)
+            {
+                //Id of each player
+                GameManager.LivePlayerID.Add(player.ID);
+
+                Debug.Log("player Name      :" + player.UserId);
+
+                if (PhotonNetwork.player.UserId != player.UserId)
+                {
+                    ui.OtherPlayerActive(player.UserId);
+
+                }
+                if (!player.customProperties.ContainsKey(PhotonNetwork.player.ID))
+                {
+                    Debug.Log("player.ID    : " + player.ID);
+                    Hashtable hash = new Hashtable();
+                    hash.Add(player.UserId , player.ID );
+
+                    player.SetCustomProperties(hash);
+                }
+            }
+        }
+
+        if (PhotonNetwork.room.maxPlayers !=5)
+        {
+            GameManager.BotAvailable = true;
+            ui.OtherPlayerActive("bot");
         }
 
         StartCoroutine(WaitForPlayer());
@@ -125,17 +172,21 @@ public class PhotonManager : Photon.MonoBehaviour
             if (PhotonNetwork.room.playerCount == PhotonNetwork.room.maxPlayers)
             {
                 maxReached = true;
+                break;
             }
             yield return new WaitForSeconds(1);
             i++;
         }
 
-        if (!maxReached)
+        if (PhotonNetwork.room.playerCount == 1 && !GameManager.BotAvailable)
         {
             Debug.Log("Bot ");
             PhotonNetwork.room.maxPlayers--;
+            
             GameObject obj  =   PhotonNetwork.Instantiate("Prefabs/CardPlayer", Vector2.zero, Quaternion.identity, 0);
-            ui.OtherPlayerActive();
+            
+            GameManager.BotAvailable = true;
+            ui.OtherPlayerActive("bot");
             obj.GetComponent<Bot>().enabled = true;
             obj.GetComponent<Player>().enabled = false;
         }
@@ -157,19 +208,25 @@ public class PhotonManager : Photon.MonoBehaviour
 
     public virtual void OnPhotonPlayerConnected(PhotonPlayer newPlayer)
     {
-        ui.OtherPlayerActive();        
+        if (PhotonNetwork.countOfPlayers > 1)
+        {
+            GameManager.ResumeMatch = true;
+        }
+        ui.OtherPlayerActive(newPlayer.UserId);
+        GameManager.LivePlayerID.Add(newPlayer.ID);
     }
 
     public virtual void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
     {
-        ui.OtherPlayerInActive();
+        if (PhotonNetwork.countOfPlayers < 2)
+        {
+            GameManager.ResumeMatch = false;
+        }
+        GameManager.LivePlayerID.Remove(otherPlayer.ID);
+        ui.OtherPlayerInActive(otherPlayer.UserId);
+        StartCoroutine(WaitForPlayer());
+
     }
 
 
-
-
-    
-   
-
-  
-  }
+}

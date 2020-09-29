@@ -9,6 +9,11 @@ public class GameManager : MonoBehaviour
     public static string PlafabID;
     public static GetAccountInfoResult username;
     public static int joinedTime;
+    public static bool BotAvailable;
+    public static bool ResumeMatch;
+    public static bool NewRound;
+    public static bool ActiveRound;
+    public static List<int> LivePlayerID;
     public CardLsit CardList;
 
     public enum Datatypes
@@ -20,7 +25,7 @@ public class GameManager : MonoBehaviour
     {
         if (instance == null)
         {
-           
+            LivePlayerID = new List<int>();
             instance = this;
             DontDestroyOnLoad(this);
         }

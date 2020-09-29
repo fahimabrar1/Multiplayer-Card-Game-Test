@@ -19,10 +19,12 @@ public class UIManager : MonoBehaviour
 
     public GameObject InGame;
 
+    public Text TableText;
+
     public Text ConnectionLogText;
     public GameObject ConnectionLogPanel;
    
-    public GameObject OtherPlayer;
+    public GameObject[] OtherPlayer;
 
     private Animator animator;
 
@@ -58,6 +60,14 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    internal void OnLeaveGame()
+    {
+        foreach (GameObject item in OtherPlayer)
+        {
+            item.name= "P";
+            item.SetActive(false);
+        }
+    }
 
     private void GetuserDataFailure(PlayFabError result)
     {
@@ -114,6 +124,17 @@ public class UIManager : MonoBehaviour
     }
 
 
+    public void NextTurn()
+    {
+        if (PhotonNetwork.room.playerCount == PhotonNetwork.room.GetTurn())
+        {
+            PhotonNetwork.room.SetTurn( 0);
+        }
+        PhotonNetwork.room.SetTurn(PhotonNetwork.room.GetTurn() +1);
+        Debug.Log("Get Turn Of Player   : " + PhotonNetwork.room.GetTurn());
+    }
+
+
     public void TurnInGameUIOn()
     {
         InGame.SetActive(true);
@@ -136,15 +157,31 @@ public class UIManager : MonoBehaviour
 
     
     
-    public void OtherPlayerActive()
+    public void OtherPlayerActive(string userId)
     {
-        OtherPlayer.SetActive(true);
+        foreach (GameObject item in OtherPlayer)
+        {
+            if (item.name.Equals("P"))
+            {
+                item.name = userId;
+                item.SetActive(true);
+                break;
+            }
+        }
     }
 
 
-    public void OtherPlayerInActive()
+    public void OtherPlayerInActive(string userId)
     {
-        OtherPlayer.SetActive(false);
+        foreach (GameObject item in OtherPlayer)
+        {
+            if (userId.Equals(item.name))
+            {
+                item.name = "P";
+                item.SetActive(false);
+                break;
+            }
+        }
     }
 
 
