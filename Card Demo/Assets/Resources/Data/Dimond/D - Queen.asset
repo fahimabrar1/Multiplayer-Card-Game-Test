@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b2b10efcad86364eb1458087b7af054, type: 3}
   m_Name: D - Queen
   m_EditorClassIdentifier: 
+  Distributed: 1
   number: 12
   cardType: 1
   Sprite: {fileID: 8195527496210285156, guid: 96524c6cb6411024ebfa286dc0eae240, type: 3}

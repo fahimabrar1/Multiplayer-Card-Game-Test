@@ -7,10 +7,11 @@ using UnityEngine;
 public class CardInfo : ScriptableObject
 {
     public enum CardType{
-        Hearts,
-        Dimond,
-        Speads,
-        Clubs
+        
+        Dimond = 1,
+        Speads = 2,
+        Hearts = 3,
+        Clubs = 4
         
     }
     public enum Number{

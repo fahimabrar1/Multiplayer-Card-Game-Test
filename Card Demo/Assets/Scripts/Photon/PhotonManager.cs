@@ -17,8 +17,13 @@ public class PhotonManager : Photon.MonoBehaviour
 
     private void Start()
     {
+
         connected = false;
-        StartCoroutine(ui.OpenLogPanel());
+        if (!PlayfabLogin.offline)
+        {
+            // StartCoroutine(ui.OpenLogPanel());
+
+        }
 
     }
    
@@ -67,6 +72,8 @@ public class PhotonManager : Photon.MonoBehaviour
         {
             item.Distributed = false;
         }
+        Text tablepot = GameObject.FindGameObjectWithTag("TablePot").GetComponent<Text>();
+        tablepot.text = "0";
         ui.TurnInGameUIOff();
         ui.TurnUIOn();
         ui.OnLeaveGame();
@@ -127,7 +134,14 @@ public class PhotonManager : Photon.MonoBehaviour
         Debug.Log(PhotonNetwork.player.UserId);
         if (PhotonNetwork.room.playerCount > 0)
         {
-           
+
+            if (PhotonNetwork.room.playerCount > 1)
+            {
+                GameManager.ResumeMatch = true;
+                GameManager.NewRound = true;
+                Debug.Log("ResumeMatch");
+                Debug.Log("NewRound");
+            }
             foreach (PhotonPlayer player in PhotonNetwork.playerList)
             {
                 //Id of each player
@@ -193,6 +207,7 @@ public class PhotonManager : Photon.MonoBehaviour
 
     }
 
+
     public virtual void OnConnectedToMaster()
     {
         ConnectionLogText.text = PhotonNetwork.connectionStateDetailed.ToString();
@@ -208,19 +223,40 @@ public class PhotonManager : Photon.MonoBehaviour
 
     public virtual void OnPhotonPlayerConnected(PhotonPlayer newPlayer)
     {
-        if (PhotonNetwork.countOfPlayers > 1)
+        if (PhotonNetwork.room.playerCount > 1)
         {
             GameManager.ResumeMatch = true;
+            GameManager.NewRound = true;
+
+            PhotonNetwork.room.SetTurn(1);
+            TableData tableData = (TableData)Resources.Load("Data/PlayerTable/Player Table");
+            foreach (PlayerTurnData data in tableData._PlayerTurnData)
+            {
+                if (data.PlayerID == 1)
+                {
+                    data.PlayerActiveTurn = 1;
+                    break;
+                }
+            }
+            Debug.Log("OnPhotonPlayerConnected");
+            Debug.Log("ResumeMatch");
+            Debug.Log("NewRound");
         }
+        
         ui.OtherPlayerActive(newPlayer.UserId);
         GameManager.LivePlayerID.Add(newPlayer.ID);
     }
 
+
     public virtual void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
     {
-        if (PhotonNetwork.countOfPlayers < 2)
+        
+        if (PhotonNetwork.room.playerCount < 2)
         {
+            Text tablepot = GameObject.FindGameObjectWithTag("TablePot").GetComponent<Text>();
+            tablepot.text = "0";
             GameManager.ResumeMatch = false;
+            GameManager.NewRound = false;
         }
         GameManager.LivePlayerID.Remove(otherPlayer.ID);
         ui.OtherPlayerInActive(otherPlayer.UserId);

@@ -69,7 +69,15 @@ public class Bot : Photon.PunBehaviour
         {
             foreach (CardInfo item in cl.CardList)
             {
-                item.Distributed = (bool)stream.ReceiveNext();
+                try
+                {
+                     item.Distributed = (bool)stream.ReceiveNext();
+                }
+                catch (System.Exception)
+                {
+
+                }
+               
 
             }
 

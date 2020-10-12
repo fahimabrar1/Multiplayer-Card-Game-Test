@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Distributed: 0
   number: 13
-  cardType: 3
+  cardType: 4
   Sprite: {fileID: 1167899421921090950, guid: 3d69f6d9413fed54b9b7362b2c7a51d0, type: 3}

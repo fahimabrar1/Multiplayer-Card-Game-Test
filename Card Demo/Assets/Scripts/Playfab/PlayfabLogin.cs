@@ -24,6 +24,7 @@ public class PlayfabLogin : MonoBehaviour
     public GameObject ConnectionLogPanel;
     public Text ConnectionLogText;
 
+    public static bool offline;
 
 
     public enum MyUser
@@ -50,6 +51,15 @@ public class PlayfabLogin : MonoBehaviour
         }
     }
     
+
+
+    #region Temprary
+    public void OfflineSceneChange()
+    {
+  
+        SceneManager.LoadScene("InGameScene");
+    }
+    #endregion Temprary
 
     private void OnLoginSuccess(LoginResult result)
     {
@@ -109,6 +119,7 @@ public class PlayfabLogin : MonoBehaviour
         StartCoroutine(CloseLogPanel());
         Debug.Log("Username Set Success");
     }
+
 
     public IEnumerator CloseLogPanel()
     {

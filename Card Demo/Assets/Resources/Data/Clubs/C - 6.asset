@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b2b10efcad86364eb1458087b7af054, type: 3}
   m_Name: C - 6
   m_EditorClassIdentifier: 
+  Distributed: 0
   number: 6
-  cardType: 3
+  cardType: 4
   Sprite: {fileID: -299060946157929191, guid: 3d69f6d9413fed54b9b7362b2c7a51d0, type: 3}

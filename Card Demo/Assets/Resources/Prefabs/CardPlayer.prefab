@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f9cdf28db2a78c419916699c94098ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlaterTurn: 0
 --- !u!114 &-8989247224544673078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,3 +86,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd2960c55a795145968889cf187ed10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cd: []
